@@ -32,12 +32,13 @@
 		            	<td>{{ $report->last_run }}</td>
 		            	<td>
 		            		<a href="{{ route('custom_reports_edit', $report->id) }}" class="btn btn-warning" role="button" style="width:40px;">{{ __('edit') }}</a>
-		            		<button type="button" class="w-100 btn btn-danger" data-toggle="modal" data-target="#delete" style="text-align: center; max-width: 55px;">{{ __('delete') }}</button>
+							<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#{{ $report->id }}exampleModal">{{ __('delete') }}</button>
+		            		@include('custom_reports/partials/delete_modal'  , array('id' => $report->id, 'link' => route('custom_reports_delete', $report->id)))							
 		            	</td>
 		            	<td><input type="radio" value="{{ $report->name }}" name="report" class="chosen-report" style="vertical-align: middle; margin-left: 50%;"></td>
 		            </tr>
 		            @endforeach		           
-@endfor
+					@endfor
 		        </tbody>
 		    </table>
 		</div>
@@ -148,6 +149,7 @@ $(document).ready(function()
 		    type: 'POST',
 		    data: 
 		    {
+		    	name: CustomExport.chosen_report('chosen-report'),
 	    		sql_statement: CustomExport.get_text('text-statement'),
 	    		_token: '{{csrf_token()}}'
 	    	},

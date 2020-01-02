@@ -69,7 +69,8 @@ $(document).ready(function() {
         fill_results_table: function (response, table)
         {
             $("#" + table + " tr").remove();
-            results = jQuery.parseJSON(response[1]);                
+            results = jQuery.parseJSON(response[1]);
+            // SQL text editor.
             $("#text-statement").val('').html(response[0]);
             html_ = '<tr>';
 
@@ -77,7 +78,7 @@ $(document).ready(function() {
                 $.each(value, function(k, v){
                     html_ += "<th>" + k + "</th>";
                 });
-                return false;
+                return false; //Break
             });
 
 

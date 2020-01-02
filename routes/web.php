@@ -9,7 +9,7 @@ Route::group(['prefix' => 'custom-reports'], function()
 		Route::get('', 'CustomReportController@index')->name('index');
 		Route::get('create', 'CustomReportController@create')->name('create');
 		Route::post('{id}/edit', 'CustomReportController@edit')->name('edit');
-		Route::get('{id}/delete', 'CustomReportController@delete')->name('delete');
+		Route::get('{id}/delete', 'CustomReportController@destroy')->name('delete');
 
 		Route::get('get-table-columns', 'CustomReportController@get_table_columns');
 		Route::get('generate-table-columns', 'CustomReportController@generate_table_columns');
@@ -17,7 +17,7 @@ Route::group(['prefix' => 'custom-reports'], function()
 		Route::get('preview-results', 'CustomReportController@get_sql_statement')->name('preview_results');
 		Route::post('update-sql-statement', 'CustomReportController@update_sql_statement')->name('update_sql_statement');
 
-		Route::get('execute', 'CustomReportController@execute')->name('execute');
+		//Route::get('execute', 'CustomReportController@execute')->name('execute'); // Not in use.
 		Route::post('export', 'CustomReportController@export')->name('export');
 		
 	});	
