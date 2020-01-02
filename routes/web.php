@@ -8,7 +8,7 @@ Route::group(['prefix' => 'custom-reports'], function()
 	{
 		Route::get('', 'CustomReportController@index')->name('index');
 		Route::get('create', 'CustomReportController@create')->name('create');
-		Route::post('{id}/edit', 'CustomReportController@edit')->name('edit');
+		Route::get('{id}/edit', 'CustomReportController@edit')->name('edit');
 		Route::get('{id}/delete', 'CustomReportController@destroy')->name('delete');
 
 		Route::get('get-table-columns', 'CustomReportController@get_table_columns');
