@@ -30,8 +30,8 @@
 			<tbody style="display: block; border: 1px solid black; height: 600px; width:250px; overflow-y: scroll">
 				<tr>
 					<td>
-						<input type="button" class="add_relationship" value="Add"/>
-						<input type="button" class="remove_relationship" value="Remove"/>
+						<input type="button" class="add_relationship" value="{{ __('app.add') }}"/>
+						<input type="button" class="remove_relationship" value="{{ __('app.remove') }}"/>
 					</td>
 				</tr>
 			</tbody>
@@ -43,8 +43,8 @@
 			<tbody style="display: block; border: 1px solid black; height: 600px; width:250px; overflow-y: scroll">
 				<tr>
 					<td>
-						<input type="button" class="where_relationship" value="Add"/>
-						<input type="button" class="where_relationship" value="Delete"/>
+						<input type="button" class="where_relationship" value="{{ __('app.add') }}"/>
+						<input type="button" class="where_relationship" value="{{ __('app.delete') }}"/>
 					</td>
 				</tr>
 			</tbody>
@@ -52,8 +52,8 @@
 	</div>
 
 	<div class="col-sm">
-		<button id="calculate" class="btn btn-primary">Calculate</button>
-		<button id="execute" class="btn btn-primary">Execute</button>
+		<button id="calculate" class="btn btn-primary">{{ __('app.calculate') }}</button>
+		<button id="execute" class="btn btn-primary">{{ __('app.execute') }}</button>
 	</div>
 </div>
 
