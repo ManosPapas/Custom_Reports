@@ -12,7 +12,10 @@
     @include('includes/css')
 </head>
 
-<body>    
+<body>
+    {{-- Use it for JS purposes --}}
+    <input type="hidden" id="current_locale" value="{{ app()->getLocale() }}">
+
     <div id="app" class="wrapper">        
         <div id="main-content-wrapper" class="content-wrapper flex-column mh-100">
             @yield('content')

@@ -4,7 +4,8 @@
 <script type="text/javascript">
 $(document).ready(function() {
 
-    var dataTable_state = false;  // I can make it dynamic if we want the system to remember the state.
+    var dataTable_state = ("{{ session('dataTable_state') }}" == 1)? true : false;
+
     var table = $(".dataTable").DataTable({
         dom: "Blfrtp",
         lengthMenu: [5, 25, 50, 100, 250, 500, -1],
@@ -40,8 +41,8 @@ $(document).ready(function() {
         },
         
         "language": {
-            "url": "//cdn.datatables.net/plug-ins/1.10.16/i18n/English.json"
-        }, // I can make it dynamic if we want many languages.
+            "url": "//cdn.datatables.net/plug-ins/1.10.16/i18n/"+get_current_language()+".json"
+        },
         
         drawCallback: function() {
             if ($('#remove_buttons').length) {
@@ -113,6 +114,19 @@ $(document).ready(function() {
 
             return [checkboxes.tablesGranted, checkboxes.tablesDenied];
         }
+    }
+
+    {{-- Get Language. If you need more languages change the code to switch. --}}
+    function get_current_language() 
+    {   
+        var locale = document.getElementById('current_locale').value;
+
+        switch(locale){
+            case 'es':
+                return 'Spanish';
+            default:
+                return 'English';
+        } 
     }
 });
 
