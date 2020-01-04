@@ -2,10 +2,8 @@
 
 <tr>
 	<td>
-		<select>
-			@foreach($tables as $table)
-				<option value="{{ $table }}">{{ $table }}</option>
-			@endforeach
+		<select class="join_tables">
+			@include('custom_reports.partials.add_join_tables', ['tables' => $tables])
 		</select>
 
 		<select>
@@ -14,10 +12,8 @@
 			@endforeach
 		</select>
 
-		<select>
-			@foreach($columns as $column)
-				<option value="{{ $column }}">{{ $column }}</option>
-			@endforeach
+		<select class="join_columns">
+			@include('custom_reports.partials.add_join_columns', ['columns' => $columns])
 		</select>
 
 		<select>
@@ -26,10 +22,10 @@
 			@endforeach
 		</select>
 
-		<select>
-			@foreach($columns as $column)
-				<option value="{{ $column }}">{{ $column }}</option>
-			@endforeach
+		<select class="join_columns">
+			@include('custom_reports.partials.add_join_columns', ['columns' => $columns])
 		</select>
+
+		<input type="button" class="remove_relationship" value="{{ __('app.remove') }}"/>
 	</td>
 </tr>

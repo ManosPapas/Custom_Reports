@@ -14,6 +14,7 @@ Route::group(['prefix' => 'custom-reports'], function()
 		Route::get('get-table-columns', 'CustomReportController@get_table_columns');
 		Route::get('generate-table-columns', 'CustomReportController@generate_table_columns');
 		Route::get('generate-table-relationships', 'CustomReportController@generate_table_relationships');
+		Route::get('generate-join-columns', 'CustomReportController@generate_join_columns');
 		Route::get('preview-results', 'CustomReportController@get_sql_statement')->name('preview_results');
 		Route::post('update-sql-statement', 'CustomReportController@update_sql_statement')->name('update_sql_statement');
 

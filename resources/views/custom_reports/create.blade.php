@@ -2,36 +2,54 @@
 
 @section('content')
 <div class="row">
+    <div class="col-sm">
+        <input type="text" id="input_tables" placeholder="Search tables">
+    </div>
+
+    <div class="col-sm">
+        <input type="text" id="input_columns" placeholder="Search columns">
+    </div>
+
+    <div class="col-sm">
+    </div>
+
+    <div class="col-sm">
+    </div>
+</div>
+
+<div class="row">
 	<div class="col-sm">
-	  	<table>
+	  	<table class="table table-striped" id="reports_table">
 			<tbody style="display: block; border: 1px solid black; height: 600px; width:250px; overflow-y: scroll">
 				@foreach ($tables as $table)
-					<tr><td>
-						<div class="custom-control custom-checkbox">
-							<input type="checkbox" class="custom-control-input selected-table" id="{{ $table }}">
-      						<label class="custom-control-label" for="{{ $table }}">{{ $table }}</label>
-      					</div>
-					</td><tr>
+					<tr>
+                        <td>
+    						<div class="custom-control custom-checkbox">
+    							<input type="checkbox" class="custom-control-input selected-table" id="{{ $table }}">
+          						<label class="custom-control-label" for="{{ $table }}">{{ $table }}</label>
+          					</div>
+					   </td>
+                    </tr>
 				@endforeach
 			</tbody>
 		</table>
 	</div>
 
 	<div class="col-sm">
-		<table id="selected-table-columns">
-			<tbody style="display: block; border: 1px solid black; height: 600px; width:250px; overflow-y: scroll">
+		<table class="table table-striped" id="selected-table-columns">
+			<tbody style="display: block; border: 1px solid black; height: 600px; width:350px; overflow-y: scroll">
 
 			</tbody>
 		</table>
 	</div>
 
 	<div class="col-sm">
-		<table id="table-relationships">
+		<table class="table table-striped" id="table-relationships">
 			<tbody style="display: block; border: 1px solid black; height: 600px; width:250px; overflow-y: scroll">
 				<tr>
 					<td>
 						<input type="button" class="add_relationship" value="{{ __('app.add') }}"/>
-						<input type="button" class="remove_relationship" value="{{ __('app.remove') }}"/>
+						
 					</td>
 				</tr>
 			</tbody>
@@ -39,7 +57,7 @@
 	</div>
 
 	<div class="col-sm">
-		<table id="where-relationships">
+		<table class="table table-striped" id="where-relationships">
 			<tbody style="display: block; border: 1px solid black; height: 600px; width:250px; overflow-y: scroll">
 				<tr>
 					<td>
@@ -58,7 +76,7 @@
 </div>
 
 <div class="row">
-	<table id="table-results">
+	<table class="table table-striped" id="table-results">
 		<tbody style="display: block; border: 1px solid black; height: 300px; width:100%; overflow-y: scroll">
 
 		</tbody>
@@ -70,28 +88,67 @@
 @parent
 <script type="text/javascript">	
 $(document).ready(function(){
-    $('.custom-control-input').click(function(e){
-    	checked_tables = CustomExport.get_checkboxes_status()[0];
 
-    	if(checked_tables.length > 0)
+    $('.selected-table').click(function(e)
+    {
+    	checked_tables = CustomExport.get_checkboxes_status(".selected-table:input:checkbox")[0];
+        columns = CustomExport.get_checkboxes_status(".tables-columns:input:checkbox")[0];
+        action_columns = CustomExport.get_action_columns_status();
+
+    	if(checked_tables.length > 0) {
             $.ajax({
                 url: '/custom-reports/generate-table-columns',
                 method: 'GET',
                 data: {
-                	tables: checked_tables
+                	tables: checked_tables,
+                    checked_columns: columns,
+                    action_columns: action_columns
                 },
                 success: function(response)
                 {
                 	$("#selected-table-columns tr").remove();
-                	$('#selected-table-columns').append(response);
+                	$('#selected-table-columns').append(response['html_columns']);
+                    CustomExport.click_checkboxes(response['checked_columns']);
+                    CustomExport.select_actions(response['action_columns']);
+                    $(".join_tables option").remove();
+                    $('.join_tables').append(response['html_join_tables']);                                  
                 },
                 error: function()
                 { 
                    console.log('Something went wrong!');
                 }
             });
-        else 
+        }
+        else {
         	$("#selected-table-columns tr").remove();
+        }
+    });
+
+    $('#selected-table-columns').on('click', '.tables-columns', function()
+    {
+        columns = CustomExport.get_checkboxes_status(".tables-columns:input:checkbox")[0];
+
+        if(columns.length > 0) {
+            $.ajax({
+                url: '/custom-reports/generate-join-columns',
+                method: 'GET',
+                data: {
+                    checked_columns: columns
+                },
+                success: function(response)
+                {
+                    $(".join_columns option").remove();
+                    $('.join_columns').append(response);                                 
+                },
+                error: function()
+                { 
+                   console.log('Something went wrong!');
+                }
+            });
+        }
+        else {
+            $(".join_columns option").remove();
+        }
     });
 
     $('#calculate').click(function(e){
@@ -138,9 +195,9 @@ $(document).ready(function(){
     $('.add_relationship').click(function(e)
     {
     	columns = CustomExport.get_checkboxes_status(".tables-columns:input:checkbox")[0];
-    	tables = CustomExport.get_checkboxes_status(".selected-table:input:checkbox")[0]
+    	tables = CustomExport.get_checkboxes_status(".selected-table:input:checkbox")[0];
 
-		if(columns.length > 0)
+		if(columns.length > 0){        
             $.ajax({
                 url: '/custom-reports/generate-table-relationships',
                 method: 'GET',
@@ -157,13 +214,24 @@ $(document).ready(function(){
                    console.log('Something went wrong!');
                 }
             });
-        else
+        }
+        else {
         	$("#table-relationships tr").remove();
+        }
 	});
 
-	$('.remove_relationship').click(function(e){
-	    $('#table-relationships tr').last().remove();
+    $('#table-relationships').on('click', '.remove_relationship', function()
+    {
+	    $(this).closest('tr').remove();
 	});
+
+    $('#input_tables').on('change', function() {
+        CustomExport.search('input_tables', 'reports_table');
+    });
+
+    $('#input_columns').on('change', function() {
+        CustomExport.search('input_columns', 'selected-table-columns');
+    });
 
 });
 

@@ -57,7 +57,9 @@ class CustomReportController extends Controller
         foreach ($request->input('tables') as $key => $table) {
             $columns = $this->report_model->get_table_columns($table);
 
-            foreach ($columns as $key => $column) $all_columns[] = $table.".".$column->getName();
+            foreach ($columns as $key => $column) {
+                $all_columns[] = $table.".".$column->getName();
+            } 
         }
 
         return response()->json($all_columns, 200);
@@ -65,22 +67,46 @@ class CustomReportController extends Controller
 
     public function generate_table_columns(Request $request)
     {
-        $responses = $this->get_table_columns($request)->original;
-        $html = View::make('custom_reports.partials.add_columns', ['responses' => $responses])->render();
+        $columns = $this->get_table_columns($request)->original;
+        $checked_tables = $request->input('tables');
+
+        $html_columns = View::make('custom_reports.partials.add_columns', [
+            'columns' => $columns,
+            'actions' => CustomReports::get_actions()
+        ])->render();
+
+        $html_join_tabless = View::make('custom_reports.partials.add_join_tables', [
+            'tables' => $checked_tables
+        ])->render();
+
+        return response()->json(array(
+            "html_columns" => $html_columns,
+            "html_join_tables" => $html_join_tabless,
+            "checked_tables" => $checked_tables,
+            "action_columns" => $request->input('action_columns'),
+            "checked_columns" => $request->input('checked_columns') ?? ''),
+            200);
+    }
+
+    public function generate_join_columns(Request $request)
+    {
+        $checked_columns = $request->input('checked_columns');
+
+        $html = View::make('custom_reports.partials.add_join_columns', [
+            'columns' => $checked_columns
+        ])->render();
 
         return response()->json(array($html), 200);
     }
 
     public function generate_table_relationships(Request $request)
     {
-        $relations = ["INNER JOIN", "LEFT JOIN", "RIGHT JOIN"];
-        $operators = ["=", ">", "<", "<>"];
         $tables = $request->tables;
         $columns = $request->columns;
         $html = View::make('custom_reports.partials.add_relationships', 
             [
-                'relations' => $relations,
-                'operators' => $operators,
+                'relations' => $this->report_model->get_relationships(),
+                'operators' => $this->report_model->get_operators(),
                 'tables' => $tables,
                 'columns' => $columns
             ])->render();
@@ -102,8 +128,7 @@ class CustomReportController extends Controller
         $report = $this->report_model->get_report($request->input('name'));
         $sql_statement = $request->input('sql_statement');
 
-        if($this->report_model->allow_query($sql_statement))
-        {
+        if($this->report_model->allow_query($sql_statement)) {
             $report->sql_statement = $sql_statement;
             $report->save();
 
@@ -118,8 +143,7 @@ class CustomReportController extends Controller
     {
         $results =$this->report_model->execute_query($request->sql_statement);
 
-        if($results !== false)
-        {
+        if($results !== false) {
             (sizeof($results) > 10)? $this->report_model->update_sql_results(array_slice($results, 0,10), $request) : $this->report_model->update_sql_results($results, $request);
         } 
 
