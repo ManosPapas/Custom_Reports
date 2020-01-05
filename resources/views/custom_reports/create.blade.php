@@ -64,9 +64,12 @@
                     <tr>
                         <td>
                             <input type="button" class="add_relationship" value="{{ __('app.add') }}"/>
+                            <span>FROM</span>
+                            <select class="join_tables">
+                                @include('custom_reports.partials.add_join_tables', ['tables' => []])
+                            </select>
                         </td>
-                    </tr>
-                    
+                    </tr>                    
                 </thead>
 			</tbody>
 		</table>

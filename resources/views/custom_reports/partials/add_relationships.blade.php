@@ -1,13 +1,13 @@
 <tr>
 	<td>
-		<select class="join_tables">
-			@include('custom_reports.partials.add_join_tables', ['tables' => $tables])
-		</select>
-
 		<select>
 			@foreach($relations as $relation)
 				<option value="{{ $relation }}">{{ $relation }}</option>
 			@endforeach
+		</select>
+
+		<select class="join_tables">
+			@include('custom_reports.partials.add_join_tables', ['tables' => $tables])
 		</select>
 
 		<select class="join_columns">

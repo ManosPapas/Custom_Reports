@@ -33,12 +33,12 @@ class CustomReports extends Model
 
     public static function get_operators()
     {
-        return [">=", "<=", "=", "<>", "IS NOT", "IN", "NULL", "EMPTY", "BETWEEN", "AND", "OR", "LIKE", "IS NULL"];
+        return ["=", ">=", "<=", "<>", "IS NOT", "IN", "NULL", "EMPTY", "BETWEEN", "AND", "OR", "LIKE", "IS NULL"];
     }
 
     public static function get_relationships()
     {
-        return ["FULL JOIN", "UNION", "SELF JOIN", "INNER JOIN", "LEFT JOIN", "RIGHT JOIN", "LEFT OUTER", "RIGHT OUTER"];
+        return ["LEFT JOIN", "INNER JOIN", "RIGHT JOIN", "LEFT OUTER", "RIGHT OUTER", "FULL JOIN", "UNION", "SELF JOIN"];
     }
 
     public function get_table_columns($table) 
