@@ -51,40 +51,39 @@
                     </td>
                 </tr>
             </thead>
-			<tbody style="display: block; border: 1px solid black; height: 600px; width:350px; overflow-y: scroll">
-
-			</tbody>
+			<tbody style="display: block; border: 1px solid black; height: 600px; width:350px; overflow-y: scroll"></tbody>
 		</table>
 	</div>
 
 	<div class="col-sm">
 		<table class="table table-striped" id="table-relationships">
-			<tbody style="display: block; border: 1px solid black; height: 600px; width:250px; overflow-y: scroll">
-                <thead>
-                    <tr>
-                        <td>
-                            <input type="button" class="add_relationship" value="{{ __('app.add') }}"/>
-                            <span>FROM</span>
-                            <select class="join_tables">
-                                @include('custom_reports.partials.add_join_tables', ['tables' => []])
-                            </select>
-                        </td>
-                    </tr>                    
-                </thead>
-			</tbody>
+            <thead>
+                <tr>
+                    <td>
+                        <input type="button" class="add_relationship" value="{{ __('app.add_relationship') }}"/>
+                        <span>{{ __('app.from') }}</span>
+                        <select class="join_tables">
+                            @include('custom_reports.partials.add_join_tables', ['tables' => []])
+                        </select>
+                    </td>
+                </tr>                    
+            </thead>
+			<tbody style="display: block; border: 1px solid black; height: 600px; width:250px; overflow-y: scroll"></tbody>
 		</table>
 	</div>
 
 	<div class="col-sm">
 		<table class="table table-striped" id="where-relationships">
-			<tbody style="display: block; border: 1px solid black; height: 600px; width:250px; overflow-y: scroll">
-				<tr>
-					<td>
-						<input type="button" class="where_relationship" value="{{ __('app.add') }}"/>
-						<input type="button" class="where_relationship" value="{{ __('app.delete') }}"/>
-					</td>
-				</tr>
-			</tbody>
+            <thead>
+                <tr>
+                    <td>
+                        <input type="button" class="add-where-clause" value="{{ __('app.add') }}"/>
+                        <span>{{ __('app.where') }}</span>
+                        <select id="where-columns"></select>
+                    </td>
+                </tr>                    
+            </thead>
+			<tbody style="display: block; border: 1px solid black; height: 600px; width:250px; overflow-y: scroll"></tbody>
 		</table>
 	</div>
 
@@ -96,9 +95,8 @@
 
 <div class="row">
 	<table class="table table-striped" id="table-results">
-		<tbody style="display: block; border: 1px solid black; height: 300px; width:100%; overflow-y: scroll">
-
-		</tbody>
+		<tbody style="display: block; border: 1px solid black; height: 300px; width:100%; overflow-y: scroll">      
+        </tbody>
 	</table>
 </div>
 @endsection
@@ -127,10 +125,12 @@ $(document).ready(function(){
                 {
                 	$("#selected-table-columns tbody>tr").remove();
                 	$('#selected-table-columns').append(response['html_columns']);
+
                     CustomExport.click_checkboxes(response['checked_columns']);
-                    //CustomExport.select_actions(response['action_columns']);
+                    //CustomExport.select_actions(response['action_columns']); //Not working for the moment
                     $(".join_tables option").remove();
-                    $('.join_tables').append(response['html_join_tables']);                                  
+                    $('.join_tables').append(response['html_join_tables']);
+                    CustomExport.fill_where_columns();
                 },
                 error: function()
                 { 
@@ -263,8 +263,6 @@ $(document).ready(function(){
     {
         CustomExport.check_all('check-all-columns', 'tables-columns');
     });
-
-    
 
 });
 

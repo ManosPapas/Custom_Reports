@@ -18,5 +18,9 @@ return [
     'remove' => 'Remove',
     'check_all' => 'Check All',
     'back' => 'Back',
+    'where' => 'Where Clause',
+    'from' => 'FROM',
+    'add_relationship' => 'Add Table Relationship',
+    'empty' => 'Empty'
     
 ];

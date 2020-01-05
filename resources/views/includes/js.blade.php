@@ -150,7 +150,7 @@ $(document).ready(function()
                         element.click();
                     }
                 }
-            }            
+            }
         },
 
         search: function(input_id, table_id)
@@ -177,7 +177,8 @@ $(document).ready(function()
             }
         },
 
-        check_all: function(id, class_name) {
+        check_all: function(id, class_name) 
+        {
             $("#"+id).change(function()
             {
                 $("."+class_name).prop('checked', $(this).prop("checked")); 
@@ -192,6 +193,33 @@ $(document).ready(function()
 
                 CustomExport.click_checkboxes([checkboxes[0]]);
             }            
+        },
+
+        fill_where_columns: function()
+        {
+            $.ajax({
+                url: '/custom-reports/get-table-columns',
+                method: 'GET',
+                data: {
+                    tables: checked_tables
+                },
+                success: function(columns)
+                {
+                    html = '';
+
+                    for(var i = 0; i<columns.length; i++) {
+                        html += "<option class='where-columns' value="+ columns[i] + ">" + columns[i] + "</option>";
+                    }
+
+                    $("#where-columns option").remove();
+                    $('#where-columns').append(html);
+
+                },
+                error: function()
+                { 
+                   console.log('Something went wrong with the second ajax!');
+                }
+            });
         }
     }
 

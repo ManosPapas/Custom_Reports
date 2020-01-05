@@ -23,7 +23,6 @@
 		        </thead>
 
 		        <tbody>
-		        	@for($i = 0; $i < 10; $i++)
 		            @foreach($reports as $key => $report)
 		            <tr>
 		            	<td>{{ $key + 1 }}</td>
@@ -37,8 +36,7 @@
 		            	</td>
 		            	<td><input type="radio" value="{{ $report->name }}" name="report" class="chosen-report" style="vertical-align: middle; margin-left: 50%;"></td>
 		            </tr>
-		            @endforeach		           
-					@endfor
+		            @endforeach
 		        </tbody>
 		    </table>
 		</div>
@@ -76,10 +74,9 @@
 
 		        <tbody>
 		        	<tr>
-		        		<td>1</td>
+		        		<td>{{ __('app.empty') }}</td>
 		        	</tr>
 		        </tbody>
-
 		    </table>
 		</div>
 	</div>

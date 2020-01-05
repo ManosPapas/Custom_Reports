@@ -10,7 +10,7 @@ Route::group(['prefix' => 'custom-reports'], function()
 		Route::get('create', 'CustomReportController@create')->name('create');
 		Route::get('{id}/edit', 'CustomReportController@edit')->name('edit');
 		Route::get('{id}/delete', 'CustomReportController@destroy')->name('delete');
-
+		// Some of the urls could be used for API.
 		Route::get('get-table-columns', 'CustomReportController@get_table_columns');
 		Route::get('generate-table-columns', 'CustomReportController@generate_table_columns');
 		Route::get('generate-table-relationships', 'CustomReportController@generate_table_relationships');
