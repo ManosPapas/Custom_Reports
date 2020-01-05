@@ -1,5 +1,3 @@
-{{-- <span>{{ __('from') }}</span> --}}
-
 <tr>
 	<td>
 		<select class="join_tables">

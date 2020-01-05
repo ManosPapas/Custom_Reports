@@ -131,7 +131,7 @@ $(document).ready(function()
                 //Not ready
             }
 
-            return ['assess_results.ar_id-SELECT', 'assess_results.assessor_1-MAX', 'assessors.id-AVG'];
+            return checkboxes.tablesGranted;
         },
 
         select_actions: function(select_element) {
@@ -142,11 +142,13 @@ $(document).ready(function()
 
         click_checkboxes: function(checkboxes)
         {
-            for (var i = 0; i < checkboxes.length; i++) {
-                var element = document.getElementById(checkboxes[i]);
+            if(checkboxes.length > 0){
+                for (var i = 0; i < checkboxes.length; i++) {
+                    var element = document.getElementById(checkboxes[i]);
 
-                if(element !== null) {
-                    element.click()
+                    if(element !== null) {
+                        element.click();
+                    }
                 }
             }            
         },
@@ -157,7 +159,7 @@ $(document).ready(function()
             input = document.getElementById(input_id);
             filter = input.value.toUpperCase();
             table = document.getElementById(table_id);
-            tr = table.getElementsByTagName("tr");
+            tr = table.getElementsByTagName("tbody")[0].rows;;
 
             // Loop through all table rows, and hide those who don't match the search query
             for (i = 0; i < tr.length; i++) {
@@ -173,6 +175,23 @@ $(document).ready(function()
                     }
                 }
             }
+        },
+
+        check_all: function(id, class_name) {
+            $("#"+id).change(function()
+            {
+                $("."+class_name).prop('checked', $(this).prop("checked")); 
+            });
+
+            // Do not do that for tables, it will take too long! The user should unclick one checkbox manually and it will work as intented (to avoid overhead in the system).
+            if(class_name === 'tables-columns') {
+                checkboxes = $('.'+class_name).map(function()
+                {
+                    return $(this).attr('id');
+                }).get();
+
+                CustomExport.click_checkboxes([checkboxes[0]]);
+            }            
         }
     }
 

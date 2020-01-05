@@ -13,6 +13,10 @@ use App\Http\Controllers\SqlFormatter;
 // What has not been done (on purpose):
 // 1) Use a PHP library to export an excel file.
 // 2) Use a Permission Manager library (like Spatie) to give access to the right people.
+// 3) UI is not "perfect" because every system has different UI/UX.
+
+// Bugs: One bug in the select_all/tables+columns. It does not populate as it should. One overhead problem when selecting all tables.
+// The message "The action was NOT successful" is green.
 
 class CustomReportController extends Controller
 {
@@ -24,7 +28,7 @@ class CustomReportController extends Controller
     }
 
     public function index()
-    {
+    {        
         return View::make('custom_reports.index', ['reports' => CustomReports::all()]);
     }
 

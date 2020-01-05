@@ -155,7 +155,9 @@ $(document).ready(function()
 	    	},
 		    success: function(response) 
 		    {
+		    	// For the moment just show the result in the console. The result should be an excel file.
 		    	console.log(response);
+		    	$('.chosen-report').click();
 		    },
 	        error: function(response)
 	        { 

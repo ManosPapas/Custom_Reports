@@ -2,24 +2,26 @@
 
 @section('content')
 <div class="row">
-    <div class="col-sm">
-        <input type="text" id="input_tables" placeholder="Search tables">
-    </div>
-
-    <div class="col-sm">
-        <input type="text" id="input_columns" placeholder="Search columns">
-    </div>
-
-    <div class="col-sm">
-    </div>
-
-    <div class="col-sm">
+    <div class="col-md">
+        <a href="{{ route('custom_reports_index') }}" class="btn btn-primary" role="button">{{ __('app.back') }}</a>
     </div>
 </div>
 
 <div class="row">
 	<div class="col-sm">
 	  	<table class="table table-striped" id="reports_table">
+            <thead>
+                <tr>
+                    <td>
+                        <div class="custom-control custom-checkbox">
+                            <input type='checkbox' id="check-all-tables" class='custom-control-input'>
+                            <label class="custom-control-label" for="check-all-tables">{{ __('app.check_all') }}</label>
+                        </div>
+
+                        <input type="text" id="input_tables" placeholder="Search tables">
+                    </td>
+                </tr>
+            </thead>
 			<tbody style="display: block; border: 1px solid black; height: 600px; width:250px; overflow-y: scroll">
 				@foreach ($tables as $table)
 					<tr>
@@ -37,6 +39,18 @@
 
 	<div class="col-sm">
 		<table class="table table-striped" id="selected-table-columns">
+            <thead>
+                <tr>
+                    <td>
+                        <div class="custom-control custom-checkbox">
+                            <input type='checkbox' id="check-all-columns" class='custom-control-input'>
+                            <label class="custom-control-label" for="check-all-columns">{{ __('app.check_all') }}</label>
+                        </div>
+
+                        <input type="text" id="input_columns" placeholder="Search columns">
+                    </td>
+                </tr>
+            </thead>
 			<tbody style="display: block; border: 1px solid black; height: 600px; width:350px; overflow-y: scroll">
 
 			</tbody>
@@ -46,12 +60,14 @@
 	<div class="col-sm">
 		<table class="table table-striped" id="table-relationships">
 			<tbody style="display: block; border: 1px solid black; height: 600px; width:250px; overflow-y: scroll">
-				<tr>
-					<td>
-						<input type="button" class="add_relationship" value="{{ __('app.add') }}"/>
-						
-					</td>
-				</tr>
+                <thead>
+                    <tr>
+                        <td>
+                            <input type="button" class="add_relationship" value="{{ __('app.add') }}"/>
+                        </td>
+                    </tr>
+                    
+                </thead>
 			</tbody>
 		</table>
 	</div>
@@ -106,21 +122,21 @@ $(document).ready(function(){
                 },
                 success: function(response)
                 {
-                	$("#selected-table-columns tr").remove();
+                	$("#selected-table-columns tbody>tr").remove();
                 	$('#selected-table-columns').append(response['html_columns']);
                     CustomExport.click_checkboxes(response['checked_columns']);
-                    CustomExport.select_actions(response['action_columns']);
+                    //CustomExport.select_actions(response['action_columns']);
                     $(".join_tables option").remove();
                     $('.join_tables').append(response['html_join_tables']);                                  
                 },
                 error: function()
                 { 
-                   console.log('Something went wrong!');
+                   console.log('Something went wrong with the main process?!');
                 }
             });
         }
         else {
-        	$("#selected-table-columns tr").remove();
+        	$("#selected-table-columns tbody>tr").remove();
         }
     });
 
@@ -160,7 +176,7 @@ $(document).ready(function(){
     		},
     		success: function(response)
             {
-        	    $("#table-results tr").remove();
+        	    $("#table-results tbody>tr").remove();
         	    size = (response.length > 10)? 10 : response.length;        	    
         	    nof_columns = Object.keys(response[0]).length;
         	    columns_ = Object.keys($.each(response[0], function(key, value) {return key;}));
@@ -185,7 +201,7 @@ $(document).ready(function(){
             },
             error: function(errorInfo)
             { 
-            	$("#table-results tr").remove();
+            	$("#table-results tbody>tr").remove();
             	$('#table-results').append("<tr><th>" + errorInfo + "</th></tr>");
                 console.log('Something went wrong with the calculation!');
             }
@@ -211,12 +227,12 @@ $(document).ready(function(){
                 },
                 error: function()
                 { 
-                   console.log('Something went wrong!');
+                   console.log('Something went wrong! Probably too many columns?');
                 }
             });
         }
         else {
-        	$("#table-relationships tr").remove();
+        	$("#table-relationships tbody>tr").remove();
         }
 	});
 
@@ -225,13 +241,27 @@ $(document).ready(function(){
 	    $(this).closest('tr').remove();
 	});
 
-    $('#input_tables').on('change', function() {
+    $('#input_tables').on('change', function() 
+    {
         CustomExport.search('input_tables', 'reports_table');
     });
 
-    $('#input_columns').on('change', function() {
+    $('#input_columns').on('change', function() 
+    {
         CustomExport.search('input_columns', 'selected-table-columns');
     });
+
+    $('#check-all-tables').on('click', function() 
+    {
+        CustomExport.check_all('check-all-tables', 'selected-table');
+    });
+
+    $('#check-all-columns').on('click', function() 
+    {
+        CustomExport.check_all('check-all-columns', 'tables-columns');
+    });
+
+    
 
 });
 

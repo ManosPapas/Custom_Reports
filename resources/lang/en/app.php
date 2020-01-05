@@ -16,6 +16,7 @@ return [
     'update' => 'Update',
     'execute' => 'Execute',
     'remove' => 'Remove',
-
-
+    'check_all' => 'Check All',
+    'back' => 'Back',
+    
 ];
