@@ -33,7 +33,7 @@ class CustomReports extends Model
 
     public static function get_operators()
     {
-        return ["=", ">=", "<=", "<>", "IS NOT", "IN", "NULL", "EMPTY", "BETWEEN", "AND", "OR", "LIKE", "IS NULL"];
+        return ["=", ">=", "<=", "<>", ">", "<", "IS NOT", "IN", "NULL", "EMPTY", "BETWEEN", "AND", "OR", "LIKE", "IS NULL", "IS NOT NULL"];
     }
 
     public static function get_relationships()
@@ -105,30 +105,76 @@ class CustomReports extends Model
     }
 
     // Change that!
-    public function construct_sql($tables_and_columns, $tables)
+    public function construct_sql($arguments)
     {
-        $sql = '';
+        $sql = 'SELECT ';
 
-        foreach ($tables as $key => $table) { 
-            $columns = array_filter(array_map(
-                function($item) use ($table)
-                {
-                    $columns_ = explode(".", $item);
+        $actions = $arguments->actions ?? [];
+        $select_columns = $arguments->select_columns ?? [];
+        $from_table = $arguments->from_table ?? [];
+        $relationship_tables = $arguments->relationship_tables ?? [];
+        $relationships = $arguments->relationships ?? [];
+        $relationship_operators = $arguments->relationship_operators ?? [];
+        $relationship_columns = $arguments->relationship_columns ?? [];
+        $where_columns = $arguments->where_columns ?? [];
+        $where_operators = $arguments->where_operators ?? [];
+        $where_input = $arguments->where_input ?? [];
 
-                    if($columns_[0] === $table) {
-                        return $columns_[1];
-                    }                         
-                }, 
-                $tables_and_columns));
-            
-            if($columns > 1) {
-                $columns = implode(',', $columns);
+        if($select_columns) {
+            for ($i=0; $i < sizeof($select_columns); $i++) { 
+                if($actions[$i] === 'SELECT') {
+                    $sql .= $select_columns[$i].",";
+                }
+                else {
+                    $sql .= $actions[$i].'('.$select_columns[$i]."),";
+                }
             }
 
-            $sql .= "SELECT ".$columns." FROM ".$table." UNION ";
+            $sql = substr($sql, 0, -1); //Remove last comma.
+        }
+        else {
+            $sql .= " * ";
         }
 
-        return substr($sql, 0, -7);
+        $sql .= " FROM " . $from_table . ' ';
+
+        $counter = 0;
+        for ($i=0; $i < sizeof($relationship_tables); $i++) { 
+            $sql .= $relationships[$i] . ' ' . $relationship_tables[$i] . ' ON ';
+            $sql .= $relationship_columns[$counter] .' '. $relationship_operators[$i] .' '. $relationship_columns[$counter+1] . ' ';
+            $counter = $counter + 2;
+        }
+
+        if($where_columns) {
+            $sql .= 'WHERE ';
+
+            for ($i=0; $i <sizeof($where_columns) ; $i++) {
+                $operator = $where_operators[$i];
+                $value = $where_input[$i];
+
+                if($operator === 'IN') {
+                    $value = explode(',', $value);
+
+                    $sql .= $where_columns[$i] . ' ' . $operator . ' (';
+
+                    $temp = '';
+                    for ($j=0; $j < sizeof($value); $j++) { 
+                        $temp .= '"'.$value[$j] . '",';
+                    }
+
+                    $sql = substr($sql, 0, -1); //Remove last comma.
+                    $sql .= $temp . ')'. ' AND ';
+                }
+                else {
+                    $sql .= $where_columns[$i] . ' ' . $operator . ' "' . $value . '" AND '; //needs change.
+                }
+                
+            }
+
+            $sql = substr($sql, 0, -5); //Remove last operator.
+        }
+
+        return $sql.";";
     }
 
     // Select raw! That could be a problem!

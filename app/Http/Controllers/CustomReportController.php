@@ -14,6 +14,7 @@ use App\Http\Controllers\SqlFormatter;
 // 1) Use a PHP library to export an excel file.
 // 2) Use a Permission Manager library (like Spatie) to give access to the right people.
 // 3) UI is not "perfect" because every system has different UI/UX.
+// 4) Error Messages
 
 // Bugs: One bug in the select_all/tables+columns. It does not populate as it should. One overhead problem when selecting all tables.
 // The message "The action was NOT successful" is green.
@@ -34,7 +35,6 @@ class CustomReportController extends Controller
 
     public function create()
     {
-
         $tables = $this->report_model->get_database_tables();
 
         return View::make('custom_reports.create', ['tables' => $tables]);
@@ -43,6 +43,11 @@ class CustomReportController extends Controller
     public function edit($id)
     {
 
+    }
+
+    public function save(Request $request)
+    {
+        return response()->json($this->report_model->construct_sql($request), 200);
     }
 
     public function destroy($id)
@@ -79,17 +84,34 @@ class CustomReportController extends Controller
             'actions' => CustomReports::get_actions()
         ])->render();
 
-        $html_join_tabless = View::make('custom_reports.partials.add_join_tables', [
+        $html_join_tables = View::make('custom_reports.partials.add_join_tables', [
             'tables' => $checked_tables
+        ])->render();
+
+        $html_where_columns = View::make('custom_reports.partials.add_where_columns', [
+            'columns' => $columns
         ])->render();
 
         return response()->json(array(
             "html_columns" => $html_columns,
-            "html_join_tables" => $html_join_tabless,
+            "html_join_tables" => $html_join_tables,
             "checked_tables" => $checked_tables,
             "action_columns" => $request->input('action_columns'),
-            "checked_columns" => $request->input('checked_columns') ?? ''),
+            "checked_columns" => $request->input('checked_columns') ?? '',
+            "html_where_columns" => $html_where_columns),
             200);
+    }
+
+    public function generate_where_clause(Request $request)
+    {
+        $columns = $this->get_table_columns($request)->original;
+
+        $html = View::make('custom_reports.partials.add_where', [
+            'columns' => $columns,
+            'operators' => CustomReports::get_operators()
+        ])->render();
+
+        return response()->json(array($html), 200);
     }
 
     public function generate_join_columns(Request $request)
@@ -109,8 +131,8 @@ class CustomReportController extends Controller
         $columns = $request->columns;
         $html = View::make('custom_reports.partials.add_relationships', 
             [
-                'relations' => $this->report_model->get_relationships(),
-                'operators' => $this->report_model->get_operators(),
+                'relations' => CustomReports::get_relationships(),
+                'operators' => CustomReports::get_operators(),
                 'tables' => $tables,
                 'columns' => $columns
             ])->render();

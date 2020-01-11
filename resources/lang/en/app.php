@@ -21,6 +21,8 @@ return [
     'where' => 'Where Clause',
     'from' => 'FROM',
     'add_relationship' => 'Add Table Relationship',
-    'empty' => 'Empty'
+    'empty' => 'Empty',
+    'help' => 'Help',
+    'help_where' => 'To seperate values, for IN and Between use comma, for example: BETWEEN IN 2019-05, 2019-06'
     
 ];

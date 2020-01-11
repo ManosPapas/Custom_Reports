@@ -60,11 +60,11 @@
             <thead>
                 <tr>
                     <td>
-                        <input type="button" class="add_relationship" value="{{ __('app.add_relationship') }}"/>
                         <span>{{ __('app.from') }}</span>
-                        <select class="join_tables">
+                        <select class="from_tables">
                             @include('custom_reports.partials.add_join_tables', ['tables' => []])
                         </select>
+                        <input type="button" id="add_relationship" value="{{ __('app.add_relationship') }}"/>
                     </td>
                 </tr>                    
             </thead>
@@ -77,19 +77,18 @@
             <thead>
                 <tr>
                     <td>
-                        <input type="button" class="add-where-clause" value="{{ __('app.add') }}"/>
+                        <input type="button" id="add_where_clause" value="{{ __('app.add') }}"/>
                         <span>{{ __('app.where') }}</span>
-                        <select id="where-columns"></select>
                     </td>
-                </tr>                    
+                </tr>                  
             </thead>
-			<tbody style="display: block; border: 1px solid black; height: 600px; width:250px; overflow-y: scroll"></tbody>
+			<tbody style="display: block; border: 1px solid black; height: 600px; width:350px; overflow-y: scroll"></tbody>
 		</table>
 	</div>
 
 	<div class="col-sm">
-		<button id="calculate" class="btn btn-primary">{{ __('app.calculate') }}</button>
-		<button id="execute" class="btn btn-primary">{{ __('app.execute') }}</button>
+		<button id="save" class="btn btn-warning">{{ __('app.save') }}</button>
+		<button type="submit" id="execute" class="btn btn-success">{{ __('app.execute') }}</button>
 	</div>
 </div>
 
@@ -130,7 +129,14 @@ $(document).ready(function(){
                     //CustomExport.select_actions(response['action_columns']); //Not working for the moment
                     $(".join_tables option").remove();
                     $('.join_tables').append(response['html_join_tables']);
+
+                    $(".from_tables option").remove();
+                    $('.from_tables').append(response['html_join_tables']);
+
                     CustomExport.fill_where_columns();
+
+                    $(".where_columns option").remove();
+                    $('.where_columns').append(response['html_where_columns']);
                 },
                 error: function()
                 { 
@@ -140,6 +146,7 @@ $(document).ready(function(){
         }
         else {
         	$("#selected-table-columns tbody>tr").remove();
+             $("#where-relationships tbody>tr").remove();
         }
     });
 
@@ -156,8 +163,8 @@ $(document).ready(function(){
                 },
                 success: function(response)
                 {
-                    $(".join_columns option").remove();
-                    $('.join_columns').append(response);                                 
+                    $(".join_columns_select option").remove();
+                    $('.join_columns_select').append(response);                                 
                 },
                 error: function()
                 { 
@@ -211,7 +218,7 @@ $(document).ready(function(){
     	});
     });
 
-    $('.add_relationship').click(function(e)
+    $('#add_relationship').click(function(e)
     {
     	columns = CustomExport.get_checkboxes_status(".tables-columns:input:checkbox")[0];
     	tables = CustomExport.get_checkboxes_status(".selected-table:input:checkbox")[0];
@@ -244,6 +251,11 @@ $(document).ready(function(){
 	    $(this).closest('tr').remove();
 	});
 
+    $('#where-relationships').on('click', '.remove_where_clause', function()
+    {
+        $(this).closest('tr').remove();
+    });
+
     $('#input_tables').on('change', function() 
     {
         CustomExport.search('input_tables', 'reports_table');
@@ -264,6 +276,126 @@ $(document).ready(function(){
         CustomExport.check_all('check-all-columns', 'tables-columns');
     });
 
+    $('#add_where_clause').click(function(e)
+    {    
+        tables = CustomExport.get_checkboxes_status(".selected-table:input:checkbox")[0];
+
+        if(tables.length > 0) {
+            $.ajax({
+                url: '/custom-reports/generate-where-clause',
+                method: 'GET',
+                data: {
+                    tables: tables
+                },
+                success: function(response)
+                {
+                    $('#where-relationships').append(response);
+                },
+                error: function()
+                { 
+                   console.log('Something went wrong!');
+                }
+            });            
+        }
+        else {
+            $("#where-relationships tbody>tr").remove();
+        }
+    });
+
+    $('#save').click(function(e)
+    {
+        // $.ajax({
+        //     url: '/custom-reports/create',
+        //     method: 'POST',
+        //     data: {
+                
+        //     },
+        //     success: function(response)
+        //     {
+                
+        //     },
+        //     error: function()
+        //     { 
+        //        console.log('Something went wrong!');
+        //     }
+        // });
+
+    });
+
+    $('#execute').click(function(e)
+    {
+        // take tables, columns, joins, where ->build
+        columns = CustomExport.get_checkboxes_status(".tables-columns:input:checkbox")[0];
+        from_table = $('.from_tables')[0].value;
+        actions = [];
+        relationships = [];
+        relationship_tables = [];
+        relationship_columns = [];
+        relationship_operators = [];
+        where_columns = [];
+        where_operators = [];
+        where_input = [];
+        all_relationships = $('.relationships');
+        all_relationship_tables = $('.join_tables');
+        all_relationship_operators = $('.relationships_operators');
+        all_relationship_columns = $('.join_columns_select');
+        all_where_columns = $('.where_columns');
+        all_where_operators = $('.where_operators');
+        all_where_input = $('.where_input');
+
+        for (var i = 0; i < columns.length; i++) {
+            element = document.getElementById("select_"+columns[i]);
+            action = element.options[element.selectedIndex].value;
+            actions.push(action);
+        }
+
+        if(all_relationships.length > 0) {
+            for (var i = 0; i < all_relationships.length; i++) {
+                relationships.push(all_relationships[i].value);
+                relationship_tables.push(all_relationship_tables[i].value);
+                relationship_operators.push(all_relationship_operators[i].value);
+            }
+
+            for (var i = 0; i < all_relationship_columns.length; i++) {
+                relationship_columns.push(all_relationship_columns[i].value);
+            }
+        }
+
+        if(all_where_columns.length > 0) {
+            for (var i = 0; i < all_where_columns.length; i++) {
+                where_columns.push(all_where_columns[i].value);
+                where_operators.push(all_where_operators[i].value);
+                where_input.push(all_where_input[i].value);
+            }
+        }
+        
+        $.ajax({
+            url: '/custom-reports/save',
+            method: 'POST',
+            data: {
+                actions: actions,
+                select_columns: columns,
+                from_table: from_table,
+                relationship_tables: relationship_tables,
+                relationships: relationships,
+                relationship_operators: relationship_operators,
+                relationship_columns: relationship_columns,
+                where_columns: where_columns,
+                where_operators: where_operators,
+                where_input: where_input,
+                _token: '{{csrf_token()}}'
+            },
+            success: function(response)
+            {
+                console.log(response);
+            },
+            error: function()
+            { 
+               console.log('Something went wrong!');
+            }
+        });
+
+    });
 });
 
 </script>
