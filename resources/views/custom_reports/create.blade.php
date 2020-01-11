@@ -5,6 +5,10 @@
     <div class="col-md">
         <a href="{{ route('custom_reports_index') }}" class="btn btn-primary" role="button">{{ __('app.back') }}</a>
     </div>
+
+    <div class="col-md">
+        <input type="text" id="report_name" placeholder="{{ __('app.report_name') }}"></input>
+    </div>
 </div>
 
 <div class="row">
@@ -93,10 +97,16 @@
 </div>
 
 <div class="row">
-	<table class="table table-striped" id="table-results">
-		<tbody style="display: block; border: 1px solid black; height: 300px; width:100%; overflow-y: scroll">      
-        </tbody>
-	</table>
+    <div class="col-sm">
+        <div contenteditable="true" id="text-statement" style="background:black; width:100%; overflow-y:scroll; height:480px;"></div>
+    </div>
+
+    <div class="row">
+    	<table class="table table-striped" id="table-results">
+    		<tbody style="display: block; border: 1px solid black; height: 300px; width:100%; overflow-y: scroll">      
+            </tbody>
+    	</table>
+    </div>
 </div>
 @endsection
 
@@ -302,27 +312,27 @@ $(document).ready(function(){
         }
     });
 
-    $('#save').click(function(e)
+    $('#execute').click(function(e)
     {
-        // $.ajax({
-        //     url: '/custom-reports/create',
-        //     method: 'POST',
-        //     data: {
+        $.ajax({
+            url: '/custom-reports/create',
+            method: 'POST',
+            data: {
                 
-        //     },
-        //     success: function(response)
-        //     {
+            },
+            success: function(response)
+            {
                 
-        //     },
-        //     error: function()
-        //     { 
-        //        console.log('Something went wrong!');
-        //     }
-        // });
+            },
+            error: function()
+            { 
+               console.log('Something went wrong!');
+            }
+        });
 
     });
 
-    $('#execute').click(function(e)
+    $('#save').click(function(e)
     {
         // take tables, columns, joins, where ->build
         columns = CustomExport.get_checkboxes_status(".tables-columns:input:checkbox")[0];
@@ -342,58 +352,66 @@ $(document).ready(function(){
         all_where_columns = $('.where_columns');
         all_where_operators = $('.where_operators');
         all_where_input = $('.where_input');
+        report_name = $('#report_name')[0].value;
 
-        for (var i = 0; i < columns.length; i++) {
-            element = document.getElementById("select_"+columns[i]);
-            action = element.options[element.selectedIndex].value;
-            actions.push(action);
+        if(report_name.length > 4) {
+
+            for (var i = 0; i < columns.length; i++) {
+                element = document.getElementById("select_"+columns[i]);
+                action = element.options[element.selectedIndex].value;
+                actions.push(action);
+            }
+
+            if(all_relationships.length > 0) {
+                for (var i = 0; i < all_relationships.length; i++) {
+                    relationships.push(all_relationships[i].value);
+                    relationship_tables.push(all_relationship_tables[i].value);
+                    relationship_operators.push(all_relationship_operators[i].value);
+                }
+
+                for (var i = 0; i < all_relationship_columns.length; i++) {
+                    relationship_columns.push(all_relationship_columns[i].value);
+                }
+            }
+
+            if(all_where_columns.length > 0) {
+                for (var i = 0; i < all_where_columns.length; i++) {
+                    where_columns.push(all_where_columns[i].value);
+                    where_operators.push(all_where_operators[i].value);
+                    where_input.push(all_where_input[i].value);
+                }
+            }
+            
+            $.ajax({
+                url: '/custom-reports/save',
+                method: 'POST',
+                data: {
+                    report_name: report_name,
+                    actions: actions,
+                    select_columns: columns,
+                    from_table: from_table,
+                    relationship_tables: relationship_tables,
+                    relationships: relationships,
+                    relationship_operators: relationship_operators,
+                    relationship_columns: relationship_columns,
+                    where_columns: where_columns,
+                    where_operators: where_operators,
+                    where_input: where_input,
+                    _token: '{{csrf_token()}}'
+                },
+                success: function(response)
+                {
+                    $("#text-statement").val('').html(response);
+                },
+                error: function()
+                { 
+                   console.log('Something went wrong!');
+                }
+            });
         }
-
-        if(all_relationships.length > 0) {
-            for (var i = 0; i < all_relationships.length; i++) {
-                relationships.push(all_relationships[i].value);
-                relationship_tables.push(all_relationship_tables[i].value);
-                relationship_operators.push(all_relationship_operators[i].value);
-            }
-
-            for (var i = 0; i < all_relationship_columns.length; i++) {
-                relationship_columns.push(all_relationship_columns[i].value);
-            }
+        else {
+            alert('{{ __('app.validate_report_name') }}');
         }
-
-        if(all_where_columns.length > 0) {
-            for (var i = 0; i < all_where_columns.length; i++) {
-                where_columns.push(all_where_columns[i].value);
-                where_operators.push(all_where_operators[i].value);
-                where_input.push(all_where_input[i].value);
-            }
-        }
-        
-        $.ajax({
-            url: '/custom-reports/save',
-            method: 'POST',
-            data: {
-                actions: actions,
-                select_columns: columns,
-                from_table: from_table,
-                relationship_tables: relationship_tables,
-                relationships: relationships,
-                relationship_operators: relationship_operators,
-                relationship_columns: relationship_columns,
-                where_columns: where_columns,
-                where_operators: where_operators,
-                where_input: where_input,
-                _token: '{{csrf_token()}}'
-            },
-            success: function(response)
-            {
-                console.log(response);
-            },
-            error: function()
-            { 
-               console.log('Something went wrong!');
-            }
-        });
 
     });
 });

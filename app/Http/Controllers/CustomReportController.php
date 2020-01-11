@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use App\Models\CustomReports;
 use App\Http\Controllers\SqlFormatter;
+use Carbon\Carbon;
 
 // What has not been done (on purpose):
 // 1) Use a PHP library to export an excel file.
@@ -47,7 +48,23 @@ class CustomReportController extends Controller
 
     public function save(Request $request)
     {
-        return response()->json($this->report_model->construct_sql($request), 200);
+        // Needs validation here.
+        $sql_statement = $this->report_model->construct_sql($request);
+        $user = $request->user();
+
+        // Add unique in table. it did not work |unique:custom_reports
+        $validatedData = $request->validate([
+            'report_name' => 'required|string|min:5'
+        ]);
+
+        $report = new CustomReports;
+        $report->name = $request->report_name;
+        $report->sql_statement = $sql_statement;
+        $report->modified_by = $user;
+        $report->last_run = Carbon::now();
+        //$report->save(); //Bug
+
+        return response()->json(SqlFormatter::format($sql_statement), 200);
     }
 
     public function destroy($id)

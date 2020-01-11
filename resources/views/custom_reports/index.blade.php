@@ -44,7 +44,7 @@
 
 	<div class="col-md"> 
 		<div contenteditable="true" id="text-statement" style="background:black; width:100%; overflow-y:scroll; height:480px;"></div>
-		{{-- Missing translations --}}
+
 		<form method="POST" style="float:left; padding-right:10px;">@csrf
 			<button id="update-statement" type="submit" class="btn btn-warning">{{ __('update') }}</button>
 		</form>
@@ -100,7 +100,7 @@ $(document).ready(function()
 	    	},
 		    success: function(response) 
 		    {
-		    	CustomExport.fill_results_table(response, 'results_table')
+		    	CustomExport.fill_results_table(response, 'results_table');
 		    },
 	        error: function(errorInfo)
 	        { 
